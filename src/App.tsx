@@ -1,4 +1,4 @@
-import { For, JSX } from 'solid-js'
+import { Switch, Match, For, JSX } from 'solid-js'
 import { createStore as _createStore, produce } from 'solid-js/store'
 import { A, Navigate, Routes, Route } from '@solidjs/router'
 
@@ -97,25 +97,42 @@ for (let i = 1; i <= 100; i++) {
 }
 
 type ButtonProps = {
-    href: string
+    href?: string
     children: JSX.Element
 }
 
 function Button(props: ButtonProps) {
+    const btn = (
+        <button
+            type="button"
+            class="unset rounded border border-stone-600 py-1.5 px-2.5 transition hover:bg-stone-700"
+        >
+            {props.children}
+        </button>
+    )
+
     return (
-        <A href={props.href}>
-            <button
-                type="button"
-                class="unset rounded border border-stone-600 py-1.5 px-2.5 transition hover:bg-stone-700"
-            >
-                {props.children}
-            </button>
-        </A>
+        <Switch>
+            <Match when={props.href !== undefined}>
+                <A href={props.href as string}>{btn}</A>
+            </Match>
+            <Match when={props.href === undefined}>{btn}</Match>
+        </Switch>
     )
 }
 
-function Sections() {
-    function Link(props: { href: string; children: string }) {
+type WorkExperienceProps = {
+    title: {
+        content: string
+        href: string
+    }
+    period: string
+    mainPoints: JSX.Element[]
+    skills: string[]
+}
+
+function WorkExperience(props: WorkExperienceProps) {
+    function ExternalLink(props: { href: string; children: string }) {
         return (
             <a class="underline" href={props.href} target="_blank">
                 {props.children}
@@ -123,52 +140,94 @@ function Sections() {
         )
     }
 
-    const spiralPricing = <div class="rounded border border-stone-600 p-4">
-            <p>
-                <Link href="https://www.spiral-pricing.com/">
-                    Spiral Pricing
-                </Link>
-            </p>
-            <p>Aug 2019 - Jan 2023 (3 years 6 months)</p>
-            <ul class="mt-2 list-disc pl-4">
-                <li>
-                    Developed{' '}
-                    <Link href="https://spiral-seller.com/ar/">
-                        Spiral Seller
-                    </Link>
-                    , an ecommerce intelligence solution for the Mercadolibre
-                    marketplace
-                </li>
-                <li>Worked from August 2019 to January 2023</li>
-                <ul class="list-[circle] pl-4 py-1">
-                    <For each={[
-                        `Worked as the lead developer and the tech lead of the
-                        company.`,
-                        `Developed and debugged applications using nodejs /
-                        Express and Reactjs with material ui.`,
-                        `Managed postgresql databases on AWS rds, and improved
-                        performance of SQL queries`,
-                    ]}>
-                        {(text) => <li class="py-1">{text}</li>}
-                    </For>
-                </ul>
-                <div class="flex justify-end">
-                    <span class="py-1.5 px-2.5">typescript</span>
-                    <span class="py-1.5 px-2.5">javascript</span>
-                    <span class="py-1.5 px-2.5">nodejs</span>
-                    <span class="py-1.5 px-2.5">Go</span>
-                    <span class="py-1.5 px-2.5">SQL on Postgresql</span>
-                    <span class="py-1.5 px-2.5">Documentdb (AWS Mongodb)</span>
-                </div>
-            </ul>
-        </div>
-
-    const ditec = <div>ditec</div>
-
     return (
-        <div>
-            {spiralPricing}
-            {ditec}
+        <div class="rounded border border-stone-600 p-4">
+            <p class="text-base">
+                <ExternalLink href={props.title.href}>
+                    {props.title.content}
+                </ExternalLink>
+            </p>
+            <p>{props.period}</p>
+            <ul class="mt-2 list-disc pl-4">
+                <For each={props.mainPoints}>{(point) => <li>{point}</li>}</For>
+            </ul>
+            <div class="flex flex-wrap justify-end">
+                <For each={props.skills}>
+                    {(skill) => <span class="py-1.5 px-2.5">{skill}</span>}
+                </For>
+            </div>
+        </div>
+    )
+}
+
+function ExternalLink(props: { href: string; children: string }) {
+    return (
+        <a class="underline" href={props.href} target="_blank">
+            {props.children}
+        </a>
+    )
+}
+
+const spiralPricing: WorkExperienceProps = {
+    title: {
+        content: 'Spiral Pricing',
+        href: 'https://www.spiral-pricing.com/',
+    },
+    period: 'Aug 2019 - Jan 2023 (3 years 6 months)',
+    mainPoints: [
+        <>
+            Developed{' '}
+            <ExternalLink href="https://spiral-seller.com/ar/">
+                Spiral Seller
+            </ExternalLink>
+            , an ecommerce intelligence solution for the Mercadolibre
+            marketplace
+        </>,
+        `Worked as the lead developer and the tech lead of the company.`,
+        `Developed and debugged applications using nodejs / Express and Reactjs with material ui.`,
+        `Managed postgresql databases on AWS rds, and improved performance of SQL queries`,
+    ],
+    skills: [
+        'javascript',
+        'typescript',
+        'nodejs',
+        'Go',
+        'SQL',
+        'Postgresql',
+        'DocumentDB',
+        'AWS',
+    ],
+}
+
+const ditecGroup: WorkExperienceProps = {
+    title: {
+        content: 'Ditec Group',
+        href: 'https://ditec.es/en/',
+    },
+    period: 'Feb 2019 - Jul 2019 (6 months)',
+    mainPoints: [
+        'Developed an internal audio routing app',
+        'Developed an internal audio routing app',
+        'Developed an internal audio routing app',
+        'Developed an internal audio routing app',
+    ],
+    skills: ['javascript', 'typescript', 'nodejs', 'SQL', 'MySQL'],
+}
+
+function Sections() {
+    return (
+        <div class="flex flex-col gap-4">
+            <WorkExperience {...spiralPricing}></WorkExperience>
+            <WorkExperience {...ditecGroup}></WorkExperience>
+
+            <div class="flex justify-center">
+                <Button>Show internships</Button>
+            </div>
+
+            <div>
+                Consultia IT logo InternIntern Consultia IT · ... and friends
+                ...
+            </div>
         </div>
     )
 }
@@ -183,7 +242,7 @@ function App() {
                     </p>
                     <div>
                         <span class="pr-2 text-orange-500">▾</span>
-                        <span class="text-green-500">src/</span>
+                        <span class="text-green-300">src/</span>
                     </div>
                     <A class="block pl-8" href={links.skills.path}>
                         {links.skills.name}
@@ -207,7 +266,7 @@ function App() {
                     </div>
                     <div class="grow">
                         <div class="m-auto w-[500px] pt-4">
-                            <p class="text-xl">Guillem Garcia Sans</p>
+                            <p class="text-2xl">Guillem Garcia Sans</p>
                             <p>
                                 Mid-level 26 y/o fullstack web developer with 6
                                 years of web development experience.
