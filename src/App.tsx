@@ -29,21 +29,30 @@ const finalState = {
 
 const links = {
     readme: {
-        name: 'readme',
+        name: 'README.md',
         path: '/readme',
     },
     skills: {
-        name: 'skills',
+        name: 'skills.sql',
         path: '/skills',
     },
     work: {
-        name: 'work',
+        name: 'work.ts',
         path: '/work',
     },
     contact: {
-        name: 'contact',
+        name: 'contact.js',
         path: '/contact',
     },
+}
+
+function trimExtension(file: string): string {
+    const [filename] = file.split('.')
+    if (filename === undefined) {
+        throw new Error(`file ${file} should have an extension`)
+    }
+
+    return filename
 }
 
 type AppState = Partial<typeof finalState>
@@ -105,6 +114,65 @@ function Button(props: ButtonProps) {
     )
 }
 
+function Sections() {
+    function Link(props: { href: string; children: string }) {
+        return (
+            <a class="underline" href={props.href} target="_blank">
+                {props.children}
+            </a>
+        )
+    }
+
+    const spiralPricing = <div class="rounded border border-stone-600 p-4">
+            <p>
+                <Link href="https://www.spiral-pricing.com/">
+                    Spiral Pricing
+                </Link>
+            </p>
+            <p>Aug 2019 - Jan 2023 (3 years 6 months)</p>
+            <ul class="mt-2 list-disc pl-4">
+                <li>
+                    Developed{' '}
+                    <Link href="https://spiral-seller.com/ar/">
+                        Spiral Seller
+                    </Link>
+                    , an ecommerce intelligence solution for the Mercadolibre
+                    marketplace
+                </li>
+                <li>Worked from August 2019 to January 2023</li>
+                <ul class="list-[circle] pl-4 py-1">
+                    <For each={[
+                        `Worked as the lead developer and the tech lead of the
+                        company.`,
+                        `Developed and debugged applications using nodejs /
+                        Express and Reactjs with material ui.`,
+                        `Managed postgresql databases on AWS rds, and improved
+                        performance of SQL queries`,
+                    ]}>
+                        {(text) => <li class="py-1">{text}</li>}
+                    </For>
+                </ul>
+                <div class="flex justify-end">
+                    <span class="py-1.5 px-2.5">typescript</span>
+                    <span class="py-1.5 px-2.5">javascript</span>
+                    <span class="py-1.5 px-2.5">nodejs</span>
+                    <span class="py-1.5 px-2.5">Go</span>
+                    <span class="py-1.5 px-2.5">SQL on Postgresql</span>
+                    <span class="py-1.5 px-2.5">Documentdb (AWS Mongodb)</span>
+                </div>
+            </ul>
+        </div>
+
+    const ditec = <div>ditec</div>
+
+    return (
+        <div>
+            {spiralPricing}
+            {ditec}
+        </div>
+    )
+}
+
 function App() {
     return (
         <div class="flex h-screen flex-col overflow-hidden bg-neutral-800 text-xs text-white">
@@ -138,7 +206,7 @@ function App() {
                         <For each={totalLines}>{(p) => p}</For>
                     </div>
                     <div class="grow">
-                        <div class="m-auto pt-4 w-[500px]">
+                        <div class="m-auto w-[500px] pt-4">
                             <p class="text-xl">Guillem Garcia Sans</p>
                             <p>
                                 Mid-level 26 y/o fullstack web developer with 6
@@ -146,14 +214,17 @@ function App() {
                             </p>
                             <div class="mt-10 flex justify-evenly gap-4">
                                 <Button href={links.skills.path}>
-                                    {links.skills.name}
+                                    {trimExtension(links.skills.name)}
                                 </Button>
                                 <Button href={links.work.path}>
-                                    {links.work.name}
+                                    {trimExtension(links.work.name)}
                                 </Button>
                                 <Button href={links.contact.path}>
-                                    {links.contact.name}
+                                    {trimExtension(links.contact.name)}
                                 </Button>
+                            </div>
+                            <div class="mt-10">
+                                <Sections></Sections>
                             </div>
                         </div>
                     </div>
