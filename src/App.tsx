@@ -1,31 +1,5 @@
 import { Switch, Match, For, JSX } from 'solid-js'
-import { createStore as _createStore, produce } from 'solid-js/store'
-import { A, Navigate, Routes, Route } from '@solidjs/router'
-
-import mePng from './imgs/me.png'
-
-function createStore<T extends object>(value: T) {
-    const [getter, setter] = _createStore(value)
-
-    type mutationFunction = (val: T) => void
-
-    function immerLike(cb: mutationFunction): void {
-        setter(produce(cb))
-    }
-
-    return [getter, immerLike] as const
-}
-
-function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => {
-        setTimeout(resolve, ms)
-    })
-}
-
-const finalState = {
-    fullTitle: 'Guillem Garcia Sans',
-    description: `I'm a fullstack web developer with a passion for travel and exploring new technologies. Whether I'm developing with Go during the day, or programming with SolidJS at night, I'm always looking for ways to grow and learn. When I'm not coding, I'm usually sipping some mate, planning my next adventure and daydreaming about the possibilities of the future!`,
-}
+import { A } from '@solidjs/router'
 
 const links = {
     readme: {
@@ -55,9 +29,21 @@ function trimExtension(file: string): string {
     return filename
 }
 
-type AppState = Partial<typeof finalState>
+// const finalState = {
+//     fullTitle: 'Guillem Garcia Sans',
+//     description: `I'm a fullstack web developer with a passion for travel and exploring new technologies. Whether I'm developing with Go during the day, or programming with SolidJS at night, I'm always looking for ways to grow and learn. When I'm not coding, I'm usually sipping some mate, planning my next adventure and daydreaming about the possibilities of the future!`,
+// }
 
-const [appState, setAppState] = createStore<AppState>({})
+// type AppState = Partial<typeof finalState>
+
+// const [appState, setAppState] = createStore<AppState>({})
+
+// This will be useful for the typing effect
+// function sleep(ms: number): Promise<void> {
+//     return new Promise((resolve) => {
+//         setTimeout(resolve, ms)
+//     })
+// }
 
 window.onload = async function () {
     // for (const char of finalState.fullTitle) {
@@ -82,14 +68,6 @@ window.onload = async function () {
     // }
 }
 
-function MePng() {
-    return (
-        <img
-            class="w-40 rounded-full border border-4 border-slate-600 opacity-70"
-            src={mePng}
-        ></img>
-    )
-}
 
 const totalLines: JSX.Element[] = []
 for (let i = 1; i <= 100; i++) {
