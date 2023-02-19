@@ -1,38 +1,33 @@
 import { Show, Switch, Match, For, JSX, createSignal } from 'solid-js'
-import { A } from '@solidjs/router'
+import { A, Routes, Route } from '@solidjs/router'
 import * as Icons from './Icons'
 
-const readme = {
-    name: 'README.md',
-    path: '/readme',
-}
+function Work() {
+    const [shown, setShown] = createSignal(false)
 
-const links = [
-    {
-        name: 'skills.sql',
-        path: '/skills',
-    },
-    {
-        name: 'work.ts',
-        path: '/work',
-    },
-    {
-        name: 'contact.js',
-        path: '/contact',
-    },
-    {
-        name: 'education.go',
-        path: '/education'
-    },
-]
-
-function trimExtension(file: string): string {
-    const [filename] = file.split('.')
-    if (filename === undefined) {
-        throw new Error(`file ${file} should have an extension`)
+    function toggle() {
+        setShown((shown) => !shown)
     }
 
-    return filename
+    return (
+        <div class="flex flex-col gap-4 pb-4">
+            <WorkExperience {...spiralPricing}></WorkExperience>
+            <WorkExperience {...ditecGroup}></WorkExperience>
+
+            {!shown() && (
+                <div class="flex justify-center">
+                    <Button onClick={toggle}>Show internships</Button>
+                </div>
+            )}
+            <Show when={shown()}>
+                <For each={internships}>
+                    {(internship) => (
+                        <WorkExperience {...internship}></WorkExperience>
+                    )}
+                </For>
+            </Show>
+        </div>
+    )
 }
 
 // const finalState = {
@@ -72,11 +67,6 @@ window.onload = async function () {
     //         store.title += char
     //     })
     // }
-}
-
-const totalLines: JSX.Element[] = []
-for (let i = 1; i <= 100; i++) {
-    totalLines.push(<p class="text-right">{i}</p>)
 }
 
 type ButtonProps = {
@@ -126,8 +116,17 @@ function WorkExperience(props: WorkExperienceProps) {
         border = 'border border-stone-600'
     }
 
+    function InternshipLabel() {
+        return (
+            <div class="absolute top-0 right-0 rounded-bl rounded-tr bg-stone-700  py-1.5 px-2.5">
+                internship
+            </div>
+        )
+    }
+
     return (
-        <div class={`rounded ${border} p-4`}>
+        <div class={`relative rounded ${border} p-4`}>
+            {props.isInternship && <InternshipLabel />}
             <p class="text-base font-medium">
                 <a
                     class="flex items-center"
@@ -288,31 +287,52 @@ const whitesheepIT: WorkExperienceProps = {
 
 const internships = [consultia, ntropia, whitesheepIT]
 
-function Sections() {
-    const [shown, setShown] = createSignal(false)
+const readme = {
+    name: 'README.md',
+    path: '/readme',
+}
 
-    function toggle() {
-        setShown((shown) => !shown)
+const links = [
+    {
+        name: 'skills.sql',
+        path: '/skills',
+        component: Work,
+    },
+    {
+        name: 'work.ts',
+        path: '/work',
+        component: Work,
+    },
+    {
+        name: 'contact.js',
+        path: '/contact',
+        component: Work,
+    },
+    {
+        name: 'education.go',
+        path: '/education',
+        component: Work,
+    },
+]
+
+function trimExtension(file: string): string {
+    const [filename] = file.split('.')
+    if (filename === undefined) {
+        throw new Error(`file ${file} should have an extension`)
     }
 
-    return (
-        <div class="flex flex-col gap-4 pb-4">
-            <WorkExperience {...spiralPricing}></WorkExperience>
-            <WorkExperience {...ditecGroup}></WorkExperience>
+    return filename
+}
 
-            <div class="flex justify-center">
-                <Button onClick={toggle}>
-                    {shown() ? 'Hide internships' : 'Show internships'}
-                </Button>
-            </div>
-            <Show when={shown()}>
-                <For each={internships}>
-                    {(internship) => (
-                        <WorkExperience {...internship}></WorkExperience>
-                    )}
-                </For>
-            </Show>
-        </div>
+function Sections() {
+    return (
+        <Routes>
+            <For each={links}>
+                {(link) => (
+                    <Route path={link.path} component={link.component} />
+                )}
+            </For>
+        </Routes>
     )
 }
 
@@ -320,36 +340,13 @@ function App() {
     return (
         <div class="flex flex-col overflow-y-hidden bg-neutral-800 text-xs text-white">
             <div class="flex grow">
-                <div class="w-[210px] border-r border-stone-600 pt-4">
-                    <p class="pr-2 text-lime-300">/guillem/projects/portfolio/</p>
-                    <div>
-                        <span class="pr-2 text-orange-500">▾</span>
-                        <span class="text-green-300">src/</span>
-                    </div>
-                    <For each={links}>
-                        {(link) => (
-                            <A class="block pl-8" href={link.path}>
-                                {link.name}
-                            </A>
-                        )}
-                    </For>
-                    <A class="block bg-neutral-700 pl-4" href={readme.path}>
-                        {readme.name}
-                    </A>
-                </div>
                 <div class="flex grow pl-2">
-                    <div class="mr-4 h-screen w-4 overflow-hidden text-left text-gray-500">
-                        <For each={totalLines}>{(p) => p}</For>
-                    </div>
                     <div class="grow">
-                        <div class="m-auto flex h-screen w-[500px] flex-col pt-4">
+                        <div class="m-auto flex h-screen w-[700px] flex-col pt-4">
                             <p class="text-2xl font-medium">
                                 Guillem Garcia Sans
                             </p>
-                            <p>
-                                Mid-level 26 y/o fullstack web developer with 6
-                                years of web development experience.
-                            </p>
+                            <p>Mid-level 26 y/o fullstack web developer</p>
                             <div class="mt-4 flex justify-evenly gap-4">
                                 <For each={links}>
                                     {(link) => (
@@ -361,7 +358,7 @@ function App() {
                             </div>
 
                             <div class="scroll-gutter-stable mt-4 grow overflow-y-auto pr-1">
-                                <Sections></Sections>
+                                <Sections />
                             </div>
                         </div>
                     </div>
