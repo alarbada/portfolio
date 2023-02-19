@@ -2,24 +2,29 @@ import { Show, Switch, Match, For, JSX, createSignal } from 'solid-js'
 import { A } from '@solidjs/router'
 import * as Icons from './Icons'
 
-const links = {
-    readme: {
-        name: 'README.md',
-        path: '/readme',
-    },
-    skills: {
+const readme = {
+    name: 'README.md',
+    path: '/readme',
+}
+
+const links = [
+    {
         name: 'skills.sql',
         path: '/skills',
     },
-    work: {
+    {
         name: 'work.ts',
         path: '/work',
     },
-    contact: {
+    {
         name: 'contact.js',
         path: '/contact',
     },
-}
+    {
+        name: 'education.go',
+        path: '/education'
+    },
+]
 
 function trimExtension(file: string): string {
     const [filename] = file.split('.')
@@ -311,35 +316,27 @@ function Sections() {
     )
 }
 
-function Sidebar() {
-    return (
-        <div class="w-[210px] border-r border-stone-600 pt-4">
-            <p class="pr-2 text-lime-300">/guillem/projects/portfolio/</p>
-            <div>
-                <span class="pr-2 text-orange-500">▾</span>
-                <span class="text-green-300">src/</span>
-            </div>
-            <A class="block pl-8" href={links.skills.path}>
-                {links.skills.name}
-            </A>
-            <A class="block pl-8" href={links.work.path}>
-                {links.work.name}
-            </A>
-            <A class="block pl-8" href={links.contact.path}>
-                {links.contact.name}
-            </A>
-            <A class="block bg-neutral-700 pl-4" href={links.readme.path}>
-                {links.readme.name}
-            </A>
-        </div>
-    )
-}
-
 function App() {
     return (
         <div class="flex flex-col overflow-y-hidden bg-neutral-800 text-xs text-white">
             <div class="flex grow">
-                <Sidebar></Sidebar>
+                <div class="w-[210px] border-r border-stone-600 pt-4">
+                    <p class="pr-2 text-lime-300">/guillem/projects/portfolio/</p>
+                    <div>
+                        <span class="pr-2 text-orange-500">▾</span>
+                        <span class="text-green-300">src/</span>
+                    </div>
+                    <For each={links}>
+                        {(link) => (
+                            <A class="block pl-8" href={link.path}>
+                                {link.name}
+                            </A>
+                        )}
+                    </For>
+                    <A class="block bg-neutral-700 pl-4" href={readme.path}>
+                        {readme.name}
+                    </A>
+                </div>
                 <div class="flex grow pl-2">
                     <div class="mr-4 h-screen w-4 overflow-hidden text-left text-gray-500">
                         <For each={totalLines}>{(p) => p}</For>
@@ -354,15 +351,13 @@ function App() {
                                 years of web development experience.
                             </p>
                             <div class="mt-4 flex justify-evenly gap-4">
-                                <Button href={links.skills.path}>
-                                    {trimExtension(links.skills.name)}
-                                </Button>
-                                <Button href={links.work.path}>
-                                    {trimExtension(links.work.name)}
-                                </Button>
-                                <Button href={links.contact.path}>
-                                    {trimExtension(links.contact.name)}
-                                </Button>
+                                <For each={links}>
+                                    {(link) => (
+                                        <Button href={link.path}>
+                                            {trimExtension(link.name)}
+                                        </Button>
+                                    )}
+                                </For>
                             </div>
 
                             <div class="scroll-gutter-stable mt-4 grow overflow-y-auto pr-1">
