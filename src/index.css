@@ -4,6 +4,10 @@
 
 html, body, #root {
     height: 100%;
-    font-family: 'Fira Mono', monospace;
+    color-scheme: dark;
+    font-family: 'Fira Mono';
 }
 
+.scroll-gutter-stable {
+    scrollbar-gutter: stable;
+}

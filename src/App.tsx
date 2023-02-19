@@ -1,5 +1,6 @@
-import { Switch, Match, For, JSX } from 'solid-js'
+import { Show, Switch, Match, For, JSX, createSignal } from 'solid-js'
 import { A } from '@solidjs/router'
+import * as Icons from './Icons'
 
 const links = {
     readme: {
@@ -68,7 +69,6 @@ window.onload = async function () {
     // }
 }
 
-
 const totalLines: JSX.Element[] = []
 for (let i = 1; i <= 100; i++) {
     totalLines.push(<p class="text-right">{i}</p>)
@@ -76,12 +76,14 @@ for (let i = 1; i <= 100; i++) {
 
 type ButtonProps = {
     href?: string
+    onClick?: () => void
     children: JSX.Element
 }
 
 function Button(props: ButtonProps) {
     const btn = (
         <button
+            onClick={props.onClick}
             type="button"
             class="unset rounded border border-stone-600 py-1.5 px-2.5 transition hover:bg-stone-700"
         >
@@ -100,39 +102,66 @@ function Button(props: ButtonProps) {
 }
 
 type WorkExperienceProps = {
+    isInternship: boolean
     title: {
         content: string
         href: string
     }
     period: string
     mainPoints: JSX.Element[]
-    skills: string[]
+    skills: {
+        primary: string[]
+        secondary: string[]
+    }
 }
 
 function WorkExperience(props: WorkExperienceProps) {
-    function ExternalLink(props: { href: string; children: string }) {
-        return (
-            <a class="underline" href={props.href} target="_blank">
-                {props.children}
-            </a>
-        )
+    let border = 'border-2 border-stone-400'
+    if (props.isInternship) {
+        border = 'border border-stone-600'
     }
 
     return (
-        <div class="rounded border border-stone-600 p-4">
-            <p class="text-base">
-                <ExternalLink href={props.title.href}>
+        <div class={`rounded ${border} p-4`}>
+            <p class="text-base font-medium">
+                <a
+                    class="flex items-center"
+                    href={props.title.href}
+                    target="_blank"
+                >
+                    <span class="pr-1">
+                        <Icons.Link />
+                    </span>
                     {props.title.content}
-                </ExternalLink>
+                </a>
             </p>
-            <p>{props.period}</p>
-            <ul class="mt-2 list-disc pl-4">
-                <For each={props.mainPoints}>{(point) => <li>{point}</li>}</For>
-            </ul>
-            <div class="flex flex-wrap justify-end">
-                <For each={props.skills}>
-                    {(skill) => <span class="py-1.5 px-2.5">{skill}</span>}
-                </For>
+            <div class="pl-5">
+                <p>{props.period}</p>
+                <ul class="mt-2 list-disc pl-4 leading-4">
+                    <For each={props.mainPoints}>
+                        {(point) => <li class="mt-1">{point}</li>}
+                    </For>
+                </ul>
+                <div class="mt-4 flex flex-col items-end gap-2">
+                    <div class="flex gap-2">
+                        <For each={props.skills.primary}>
+                            {(skill) => (
+                                <span class="rounded-full border border-stone-700 bg-stone-500 py-1.5 px-2.5">
+                                    {skill}
+                                </span>
+                            )}
+                        </For>
+                    </div>
+                    <div class="flex gap-2">
+                        <For each={props.skills.secondary}>
+                            {(skill) => (
+                                <span class="rounded-full border border-stone-600 py-1.5 px-2.5">
+                                    {skill}
+                                </span>
+                            )}
+                        </For>
+                    </div>
+                </div>
             </div>
         </div>
     )
@@ -147,37 +176,42 @@ function ExternalLink(props: { href: string; children: string }) {
 }
 
 const spiralPricing: WorkExperienceProps = {
+    isInternship: false,
     title: {
         content: 'Spiral Pricing',
         href: 'https://www.spiral-pricing.com/',
     },
     period: 'Aug 2019 - Jan 2023 (3 years 6 months)',
     mainPoints: [
+        `Worked as the lead developer of the company.`,
         <>
             Developed{' '}
-            <ExternalLink href="https://spiral-seller.com/ar/">
-                Spiral Seller
-            </ExternalLink>
+            <span class="font-bold">
+                <ExternalLink href="https://spiral-seller.com/ar/">
+                    Spiral Seller
+                </ExternalLink>
+            </span>
             , an ecommerce intelligence solution for the Mercadolibre
             marketplace
         </>,
-        `Worked as the lead developer and the tech lead of the company.`,
-        `Developed and debugged applications using nodejs / Express and Reactjs with material ui.`,
-        `Managed postgresql databases on AWS rds, and improved performance of SQL queries`,
+        `Managed multiregional postgresql databases on AWS rds`,
+        'Worked as the lead developer and the tech lead of the company.',
+        'Worked with NoSQL databases with both Documentdb (AWS) and cosmosdb (Azure).',
+        'Created many integrations with Mercadolibre API using typescript.',
+        'Had 70%+ code coverage testing with unit and integration tests using jest and puppeteer.',
+        'Improved performance of some webhook services using golang.',
+        'Developed webscraping services using puppeteer and Apify.',
+        'Containerized nodejs backend with docker and nginx for load balancing.',
+        'Optimized typescript build times using esbuild and vitejs on the front end, and SWC on the backend.',
     ],
-    skills: [
-        'javascript',
-        'typescript',
-        'nodejs',
-        'Go',
-        'SQL',
-        'Postgresql',
-        'DocumentDB',
-        'AWS',
-    ],
+    skills: {
+        primary: ['typescript', 'nodejs', 'Postgresql', 'AWS', 'Go'],
+        secondary: ['DocumentDB', 'Apify', 'Docker', 'Azure', 'CosmosDB'],
+    },
 }
 
 const ditecGroup: WorkExperienceProps = {
+    isInternship: false,
     title: {
         content: 'Ditec Group',
         href: 'https://ditec.es/en/',
@@ -185,71 +219,141 @@ const ditecGroup: WorkExperienceProps = {
     period: 'Feb 2019 - Jul 2019 (6 months)',
     mainPoints: [
         'Developed an internal audio routing app',
-        'Developed an internal audio routing app',
-        'Developed an internal audio routing app',
-        'Developed an internal audio routing app',
+        'Single handedly built a reactjs SPA to manage audio sources in Operation Rooms.',
+        'Had 80+% code coverage with unit and integrations tests using Jasmine',
+        'Set up complex build pipelines with webpack.',
+        'Maintained and debugged complex audio drivers in javascript.',
     ],
-    skills: ['javascript', 'typescript', 'nodejs', 'SQL', 'MySQL'],
+    skills: {
+        primary: ['javascript', 'Reactjs', 'nodejs', 'MySQL'],
+        secondary: ['scrum', 'CSS'],
+    },
 }
 
+const consultia: WorkExperienceProps = {
+    isInternship: true,
+    title: {
+        content: 'Consultia',
+        href: 'https://www.consultia.biz/',
+    },
+    period: 'Oct 2018 - Feb 2019 (5 months)',
+    mainPoints: [
+        'Maintainance of legacy java apps',
+        'Maintainance of SQL server',
+    ],
+    skills: {
+        primary: ['java', 'javascript', 'SQL Server'],
+        secondary: [],
+    },
+}
+
+const ntropia: WorkExperienceProps = {
+    isInternship: true,
+    title: {
+        content: 'n-tropia',
+        href: 'https://n-tropia.com/',
+    },
+    period: 'Sep 2017 - May 2018 (9 months)',
+    mainPoints: [
+        'Heavy CSS responsive development',
+        'First hand experience into JQuery callback hell',
+    ],
+    skills: {
+        primary: ['javascript', 'CSS', 'jQuery', 'Bootstrap', 'UX/UI'],
+        secondary: ['PHP', 'LAMP', 'linux'],
+    },
+}
+
+const whitesheepIT: WorkExperienceProps = {
+    isInternship: true,
+    title: {
+        content: 'Whitesheep-IT',
+        href: 'https://whitesheep-it.de/',
+    },
+    period: 'Jun 2017 - Aug 2017 (3 months)',
+    mainPoints: [
+        'My very first experience into basic web development',
+        'Did help setup LAMP servers',
+    ],
+    skills: {
+        primary: ['javascript', 'HTML', 'CSS', 'PHP', 'LAMP'],
+        secondary: [],
+    },
+}
+
+const internships = [consultia, ntropia, whitesheepIT]
+
 function Sections() {
+    const [shown, setShown] = createSignal(false)
+
+    function toggle() {
+        setShown((shown) => !shown)
+    }
+
     return (
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 pb-4">
             <WorkExperience {...spiralPricing}></WorkExperience>
             <WorkExperience {...ditecGroup}></WorkExperience>
 
             <div class="flex justify-center">
-                <Button>Show internships</Button>
+                <Button onClick={toggle}>
+                    {shown() ? 'Hide internships' : 'Show internships'}
+                </Button>
             </div>
+            <Show when={shown()}>
+                <For each={internships}>
+                    {(internship) => (
+                        <WorkExperience {...internship}></WorkExperience>
+                    )}
+                </For>
+            </Show>
+        </div>
+    )
+}
 
+function Sidebar() {
+    return (
+        <div class="w-[210px] border-r border-stone-600 pt-4">
+            <p class="pr-2 text-lime-300">/guillem/projects/portfolio/</p>
             <div>
-                Consultia IT logo InternIntern Consultia IT · ... and friends
-                ...
+                <span class="pr-2 text-orange-500">▾</span>
+                <span class="text-green-300">src/</span>
             </div>
+            <A class="block pl-8" href={links.skills.path}>
+                {links.skills.name}
+            </A>
+            <A class="block pl-8" href={links.work.path}>
+                {links.work.name}
+            </A>
+            <A class="block pl-8" href={links.contact.path}>
+                {links.contact.name}
+            </A>
+            <A class="block bg-neutral-700 pl-4" href={links.readme.path}>
+                {links.readme.name}
+            </A>
         </div>
     )
 }
 
 function App() {
     return (
-        <div class="flex h-screen flex-col overflow-hidden bg-neutral-800 text-xs text-white">
+        <div class="flex flex-col overflow-y-hidden bg-neutral-800 text-xs text-white">
             <div class="flex grow">
-                <div class="w-[210px] border-r border-stone-600 pt-4">
-                    <p class="pr-2 text-lime-300">
-                        /guillem/projects/portfolio/
-                    </p>
-                    <div>
-                        <span class="pr-2 text-orange-500">▾</span>
-                        <span class="text-green-300">src/</span>
-                    </div>
-                    <A class="block pl-8" href={links.skills.path}>
-                        {links.skills.name}
-                    </A>
-                    <A class="block pl-8" href={links.work.path}>
-                        {links.work.name}
-                    </A>
-                    <A class="block pl-8" href={links.contact.path}>
-                        {links.contact.name}
-                    </A>
-                    <A
-                        class="block bg-neutral-700 pl-4"
-                        href={links.readme.path}
-                    >
-                        {links.readme.name}
-                    </A>
-                </div>
+                <Sidebar></Sidebar>
                 <div class="flex grow pl-2">
-                    <div class="mr-4 w-4 text-left text-gray-500">
+                    <div class="mr-4 h-screen w-4 overflow-hidden text-left text-gray-500">
                         <For each={totalLines}>{(p) => p}</For>
                     </div>
                     <div class="grow">
-                        <div class="m-auto w-[500px] pt-4">
-                            <p class="text-2xl">Guillem Garcia Sans</p>
+                        <div class="m-auto flex h-screen w-[500px] flex-col pt-4">
+                            <p class="text-2xl font-medium">
+                                Guillem Garcia Sans
+                            </p>
                             <p>
                                 Mid-level 26 y/o fullstack web developer with 6
                                 years of web development experience.
                             </p>
-                            <div class="mt-10 flex justify-evenly gap-4">
+                            <div class="mt-4 flex justify-evenly gap-4">
                                 <Button href={links.skills.path}>
                                     {trimExtension(links.skills.name)}
                                 </Button>
@@ -260,7 +364,8 @@ function App() {
                                     {trimExtension(links.contact.name)}
                                 </Button>
                             </div>
-                            <div class="mt-10">
+
+                            <div class="scroll-gutter-stable mt-4 grow overflow-y-auto pr-1">
                                 <Sections></Sections>
                             </div>
                         </div>
