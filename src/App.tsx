@@ -1,4 +1,4 @@
-import { Show, Switch, Match, For, JSX, createSignal } from 'solid-js'
+import { Show, Switch, Match, For, JSX, createSignal, createEffect } from 'solid-js'
 import {
     A,
     Routes,
@@ -9,27 +9,55 @@ import {
 } from '@solidjs/router'
 import * as Icons from './Icons'
 
+
+
 function Work() {
-    const [shown, setShown] = createSignal(false)
+    const [showInternships, setShowInternships] = createSignal(false)
+    const [searchParams] = useSearchParams()
 
     function toggle() {
-        setShown((shown) => !shown)
+        setShowInternships((shown) => !shown)
+    }
+
+    function shouldShowExperience(skill: string | undefined, props: WorkExperienceProps) {
+        if (skill === undefined) {
+            return true
+        }
+        if (props.skills.primary.includes(skill)) {
+            return true
+        }
+        if (props.skills.secondary.includes(skill)) {
+            return true
+        }
+
+        return false
     }
 
     return (
         <div class="flex flex-col gap-4 pb-4">
-            <WorkExperience {...spiralPricing}></WorkExperience>
-            <WorkExperience {...ditecGroup}></WorkExperience>
+            <Show when={searchParams.skill === undefined}>
+                <WorkExperience {...spiralPricing}></WorkExperience>
+                <WorkExperience {...ditecGroup}></WorkExperience>
 
-            {!shown() && (
-                <div class="flex justify-center">
-                    <Button onClick={toggle}>Show internships</Button>
-                </div>
-            )}
-            <Show when={shown()}>
-                <For each={internships}>
-                    {(internship) => (
-                        <WorkExperience {...internship}></WorkExperience>
+                <Show when={!showInternships()}>
+                    <div class="flex justify-center">
+                        <Button onClick={toggle}>Show internships</Button>
+                    </div>
+                </Show>
+                <Show when={showInternships()}>
+                    <For each={internships}>
+                        {(internship) => (
+                            <WorkExperience {...internship}></WorkExperience>
+                        )}
+                    </For>
+                </Show>
+            </Show>
+            <Show when={searchParams.skill !== undefined}>
+                <For each={allWorkExperiences}>
+                    {(experience) => (
+                        <Show when={shouldShowExperience(searchParams.skill, experience)}>
+                            <WorkExperience {...experience}></WorkExperience>
+                        </Show>
                     )}
                 </For>
             </Show>
@@ -123,24 +151,6 @@ function WorkExperience(props: WorkExperienceProps) {
         border = 'border border-stone-600'
     }
 
-    const [searchParams] = useSearchParams()
-    const skillParam = searchParams['skill']
-
-    let shouldShow = true
-    setShouldShow: {
-        if (skillParam === undefined) {
-            break setShouldShow 
-        }
-        if (props.skills.primary.includes(skillParam)) {
-            break setShouldShow
-        }
-        if (props.skills.secondary.includes(skillParam)) {
-            break setShouldShow
-        }
-
-        shouldShow = false
-    }
-
     function InternshipLabel() {
         return (
             <div class="absolute top-0 right-0 rounded-bl rounded-tr bg-stone-700  py-1.5 px-2.5">
@@ -150,44 +160,42 @@ function WorkExperience(props: WorkExperienceProps) {
     }
 
     return (
-        <Show when={shouldShow}>
-            <div class={`relative rounded ${border} p-4`}>
-                {props.isInternship && <InternshipLabel />}
-                <p class="text-base font-medium">
-                    <a
-                        class="flex items-center"
-                        href={props.title.href}
-                        target="_blank"
-                    >
-                        <span class="pr-1">
-                            <Icons.Link />
-                        </span>
-                        {props.title.content}
-                    </a>
-                </p>
+        <div class={`relative rounded ${border} p-4`}>
+            {props.isInternship && <InternshipLabel />}
+            <p class="text-base font-medium">
+                <a
+                    class="flex items-center"
+                    href={props.title.href}
+                    target="_blank"
+                >
+                    <span class="pr-1">
+                        <Icons.Link />
+                    </span>
+                    {props.title.content}
+                </a>
+            </p>
                 <div class="pl-5">
                     <p>{props.period}</p>
                     <ul class="mt-2 list-disc pl-4 leading-4">
                         <For each={props.mainPoints}>
-                            {(point) => <li class="mt-1">{point}</li>}
+                        {(point) => <li class="mt-1">{point}</li>}
                         </For>
                     </ul>
                     <div class="mt-4 flex flex-col items-end gap-2">
                         <div class="flex gap-2">
-                            <For each={props.skills.primary}>
-                                {(skill) => <Skill name={skill} primary></Skill>}
-                            </For>
+                        <For each={props.skills.primary}>
+                            {(skill) => <Skill name={skill} primary></Skill>}
+                        </For>
                         </div>
-                        <div class="flex gap-2">
-                            <For each={props.skills.secondary}>
-                                {(skill) => <Skill name={skill}></Skill>}
-                            </For>
-                        </div>
+                    <div class="flex gap-2">
+                        <For each={props.skills.secondary}>
+                            {(skill) => <Skill name={skill}></Skill>}
+                        </For>
+                    </div>
                     </div>
                 </div>
-            </div>
+        </div>
 
-        </Show>
     )
 }
 
