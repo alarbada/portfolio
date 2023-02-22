@@ -4,8 +4,15 @@
 
 html, body, #root {
     height: 100%;
+    break-after: all;
     color-scheme: dark;
     font-family: 'Fira Mono';
+}
+
+@media print {
+    html, body, #root {
+        color-scheme: none;
+    }
 }
 
 .scroll-gutter-stable {

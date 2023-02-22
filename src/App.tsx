@@ -1,5 +1,5 @@
 import { Show, Switch, Match, For, JSX, createSignal } from 'solid-js'
-import { A, Routes, Route } from '@solidjs/router'
+import { A, Routes, Route, Navigate } from '@solidjs/router'
 import * as Icons from './Icons'
 
 function Work() {
@@ -287,6 +287,14 @@ const whitesheepIT: WorkExperienceProps = {
 
 const internships = [consultia, ntropia, whitesheepIT]
 
+function Skills() {
+    return <div>skills</div>
+}
+
+function Contact() {
+    return <div>contact</div>
+}
+
 const readme = {
     name: 'README.md',
     path: '/readme',
@@ -296,7 +304,7 @@ const links = [
     {
         name: 'skills.sql',
         path: '/skills',
-        component: Work,
+        component: Skills,
     },
     {
         name: 'work.ts',
@@ -306,12 +314,7 @@ const links = [
     {
         name: 'contact.js',
         path: '/contact',
-        component: Work,
-    },
-    {
-        name: 'education.go',
-        path: '/education',
-        component: Work,
+        component: Contact,
     },
 ]
 
@@ -332,21 +335,37 @@ function Sections() {
                     <Route path={link.path} component={link.component} />
                 )}
             </For>
+            <Route path={readme.path} component={Work} />
+            <Route path="*" element={<Navigate href={readme.path} />} />
         </Routes>
     )
 }
 
 function App() {
     return (
-        <div class="flex flex-col overflow-y-hidden bg-neutral-800 text-xs text-white">
+        <div class="flex flex-col overflow-y-hidden bg-neutral-800 text-xs text-white print:text-black">
             <div class="flex grow">
                 <div class="flex grow pl-2">
                     <div class="grow">
                         <div class="m-auto flex h-screen w-[700px] flex-col pt-4">
-                            <p class="text-2xl font-medium">
-                                Guillem Garcia Sans
-                            </p>
-                            <p>Mid-level 26 y/o fullstack web developer</p>
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-2xl font-medium">
+                                        Guillem Garcia Sans
+                                    </p>
+                                    <p>Mid-level 26 y/o fullstack web developer</p>
+                                </div>
+
+                                <div class="flex gap-2">
+                                    <a href="https://github.com/not-rusty" target="_blank">
+                                        <Icons.Github></Icons.Github>
+                                    </a>
+                                    <a href="https://www.linkedin.com/in/guillem-garcia/" target="_blank">
+                                        <Icons.Linkedin></Icons.Linkedin>
+                                    </a>
+                                </div>
+
+                            </div>
                             <div class="mt-4 flex justify-evenly gap-4">
                                 <For each={links}>
                                     {(link) => (
