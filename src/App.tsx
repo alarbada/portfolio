@@ -1,5 +1,12 @@
 import { Show, Switch, Match, For, JSX, createSignal } from 'solid-js'
-import { A, Routes, Route, Navigate } from '@solidjs/router'
+import {
+    A,
+    Routes,
+    Route,
+    Navigate,
+    useNavigate,
+    useSearchParams,
+} from '@solidjs/router'
 import * as Icons from './Icons'
 
 function Work() {
@@ -116,6 +123,24 @@ function WorkExperience(props: WorkExperienceProps) {
         border = 'border border-stone-600'
     }
 
+    const [searchParams] = useSearchParams()
+    const skillParam = searchParams['skill']
+
+    let shouldShow = true
+    setShouldShow: {
+        if (skillParam === undefined) {
+            break setShouldShow 
+        }
+        if (props.skills.primary.includes(skillParam)) {
+            break setShouldShow
+        }
+        if (props.skills.secondary.includes(skillParam)) {
+            break setShouldShow
+        }
+
+        shouldShow = false
+    }
+
     function InternshipLabel() {
         return (
             <div class="absolute top-0 right-0 rounded-bl rounded-tr bg-stone-700  py-1.5 px-2.5">
@@ -125,49 +150,44 @@ function WorkExperience(props: WorkExperienceProps) {
     }
 
     return (
-        <div class={`relative rounded ${border} p-4`}>
-            {props.isInternship && <InternshipLabel />}
-            <p class="text-base font-medium">
-                <a
-                    class="flex items-center"
-                    href={props.title.href}
-                    target="_blank"
-                >
-                    <span class="pr-1">
-                        <Icons.Link />
-                    </span>
-                    {props.title.content}
-                </a>
-            </p>
-            <div class="pl-5">
-                <p>{props.period}</p>
-                <ul class="mt-2 list-disc pl-4 leading-4">
-                    <For each={props.mainPoints}>
-                        {(point) => <li class="mt-1">{point}</li>}
-                    </For>
-                </ul>
-                <div class="mt-4 flex flex-col items-end gap-2">
-                    <div class="flex gap-2">
-                        <For each={props.skills.primary}>
-                            {(skill) => (
-                                <span class="rounded-full border border-stone-700 bg-stone-500 py-1.5 px-2.5">
-                                    {skill}
-                                </span>
-                            )}
+        <Show when={shouldShow}>
+            <div class={`relative rounded ${border} p-4`}>
+                {props.isInternship && <InternshipLabel />}
+                <p class="text-base font-medium">
+                    <a
+                        class="flex items-center"
+                        href={props.title.href}
+                        target="_blank"
+                    >
+                        <span class="pr-1">
+                            <Icons.Link />
+                        </span>
+                        {props.title.content}
+                    </a>
+                </p>
+                <div class="pl-5">
+                    <p>{props.period}</p>
+                    <ul class="mt-2 list-disc pl-4 leading-4">
+                        <For each={props.mainPoints}>
+                            {(point) => <li class="mt-1">{point}</li>}
                         </For>
-                    </div>
-                    <div class="flex gap-2">
-                        <For each={props.skills.secondary}>
-                            {(skill) => (
-                                <span class="rounded-full border border-stone-600 py-1.5 px-2.5">
-                                    {skill}
-                                </span>
-                            )}
-                        </For>
+                    </ul>
+                    <div class="mt-4 flex flex-col items-end gap-2">
+                        <div class="flex gap-2">
+                            <For each={props.skills.primary}>
+                                {(skill) => <Skill name={skill} primary></Skill>}
+                            </For>
+                        </div>
+                        <div class="flex gap-2">
+                            <For each={props.skills.secondary}>
+                                {(skill) => <Skill name={skill}></Skill>}
+                            </For>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+        </Show>
     )
 }
 
@@ -176,6 +196,48 @@ function ExternalLink(props: { href: string; children: string }) {
         <a class="underline" href={props.href} target="_blank">
             {props.children}
         </a>
+    )
+}
+
+type Level = { level: 'strong' | 'medium' | 'weak' }
+
+const skills = new Map<string, Level>()
+skills.set('typescript', { level: 'strong' })
+skills.set('javascript', { level: 'strong' })
+skills.set('nodejs', { level: 'strong' })
+skills.set('Postgresql', { level: 'strong' })
+skills.set('Reactjs', { level: 'strong' })
+skills.set('MySQL', { level: 'strong' })
+skills.set('scrum', { level: 'strong' })
+skills.set('CSS', { level: 'strong' })
+skills.set('linux', { level: 'strong' })
+skills.set('HTML', { level: 'strong' })
+skills.set('AWS', { level: 'medium' })
+skills.set('Go', { level: 'medium' })
+skills.set('DocumentDB', { level: 'medium' })
+skills.set('UX/UI', { level: 'medium' })
+skills.set('PHP', { level: 'medium' })
+skills.set('LAMP', { level: 'medium' })
+skills.set('Apify', { level: 'weak' })
+skills.set('Docker', { level: 'weak' })
+skills.set('Azure', { level: 'weak' })
+skills.set('CosmosDB', { level: 'weak' })
+skills.set('java', { level: 'weak' })
+skills.set('SQL Server', { level: 'weak' })
+skills.set('jQuery', { level: 'weak' })
+skills.set('Bootstrap', { level: 'weak' })
+
+/**
+ * assertKey asserts that the skills given for each work experience do indeed
+ * exist. This exists to prevent type mistakes.
+ */
+function assertKey(key: string): string {
+    if (skills.has(key)) {
+        return key
+    }
+
+    throw new Error(
+        `The key ${key} does not exist on skills map, please use the corresponding one`
     )
 }
 
@@ -209,8 +271,12 @@ const spiralPricing: WorkExperienceProps = {
         'Optimized typescript build times using esbuild and vitejs on the front end, and SWC on the backend.',
     ],
     skills: {
-        primary: ['typescript', 'nodejs', 'Postgresql', 'AWS', 'Go'],
-        secondary: ['DocumentDB', 'Apify', 'Docker', 'Azure', 'CosmosDB'],
+        primary: ['typescript', 'nodejs', 'Postgresql', 'AWS', 'Go'].map(
+            assertKey
+        ),
+        secondary: ['DocumentDB', 'Apify', 'Docker', 'Azure', 'CosmosDB'].map(
+            assertKey
+        ),
     },
 }
 
@@ -229,8 +295,8 @@ const ditecGroup: WorkExperienceProps = {
         'Maintained and debugged complex audio drivers in javascript.',
     ],
     skills: {
-        primary: ['javascript', 'Reactjs', 'nodejs', 'MySQL'],
-        secondary: ['scrum', 'CSS'],
+        primary: ['javascript', 'Reactjs', 'nodejs', 'MySQL'].map(assertKey),
+        secondary: ['scrum', 'CSS'].map(assertKey),
     },
 }
 
@@ -246,7 +312,7 @@ const consultia: WorkExperienceProps = {
         'Maintainance of SQL server',
     ],
     skills: {
-        primary: ['java', 'javascript', 'SQL Server'],
+        primary: ['java', 'javascript', 'SQL Server'].map(assertKey),
         secondary: [],
     },
 }
@@ -263,8 +329,10 @@ const ntropia: WorkExperienceProps = {
         'First hand experience into JQuery callback hell',
     ],
     skills: {
-        primary: ['javascript', 'CSS', 'jQuery', 'Bootstrap', 'UX/UI'],
-        secondary: ['PHP', 'LAMP', 'linux'],
+        primary: ['javascript', 'CSS', 'jQuery', 'Bootstrap', 'UX/UI'].map(
+            assertKey
+        ),
+        secondary: ['PHP', 'LAMP', 'linux'].map(assertKey),
     },
 }
 
@@ -280,36 +348,99 @@ const whitesheepIT: WorkExperienceProps = {
         'Did help setup LAMP servers',
     ],
     skills: {
-        primary: ['javascript', 'HTML', 'CSS', 'PHP', 'LAMP'],
+        primary: ['javascript', 'HTML', 'CSS', 'PHP', 'LAMP'].map(assertKey),
         secondary: [],
     },
 }
 
 const internships = [consultia, ntropia, whitesheepIT]
+const allWorkExperiences = [spiralPricing, ditecGroup, ...internships]
+
+function Skill(props: { name: string; primary?: boolean }) {
+    const navigate = useNavigate()
+
+    function handleClick() {
+        navigate(`${workLink.path}?skill=${props.name}`)
+    }
+
+    return (
+        <Switch>
+            <Match when={props.primary}>
+                <span
+                    class="cursor-pointer rounded-full border border-stone-700 bg-stone-500 py-1.5 px-2.5 transition hover:bg-stone-600"
+                    onClick={handleClick}
+                >
+                    {props.name}
+                </span>
+            </Match>
+            <Match when={!props.primary}>
+                <span
+                    class="cursor-pointer rounded-full border border-stone-600 py-1.5 px-2.5 transition hover:bg-stone-600"
+                    onClick={handleClick}
+                >
+                    {props.name}
+                </span>
+            </Match>
+        </Switch>
+    )
+}
 
 function Skills() {
-    return <div>skills</div>
+    const allSkills = [...skills]
+
+    const strong = allSkills.filter((skill) => skill[1].level === 'strong')
+    const medium = allSkills.filter((skill) => skill[1].level === 'medium')
+    const weak = allSkills.filter((skill) => skill[1].level === 'weak')
+
+    function Row(props: { skills: [string, Level][] }) {
+        return (
+            <div class="flex flex-wrap gap-2">
+                <For each={props.skills}>
+                    {(skill) => <Skill name={skill[0]}></Skill>}
+                </For>
+            </div>
+        )
+    }
+
+    return (
+        <div class="flex flex-col gap-4">
+            <div class="rounded border-2 border-stone-400 p-4">
+                <p class="mb-4 text-base font-medium">Strong</p>
+                <Row skills={strong}></Row>
+            </div>
+            <div class="rounded border-2 border-stone-400 p-4">
+                <p class="mb-4 text-base font-medium">Medium</p>
+                <Row skills={medium}></Row>
+            </div>
+            <div class="rounded border-2 border-stone-400 p-4">
+                <p class="mb-4 text-base font-medium">Weak</p>
+                <Row skills={weak}></Row>
+            </div>
+        </div>
+    )
 }
 
 function Contact() {
     return <div>contact</div>
 }
 
-const readme = {
+const readmeLink = {
     name: 'README.md',
     path: '/readme',
 }
 
+const workLink = {
+    name: 'work.ts',
+    path: '/work',
+    component: Work,
+}
+
 const links = [
+    workLink,
     {
         name: 'skills.sql',
         path: '/skills',
         component: Skills,
-    },
-    {
-        name: 'work.ts',
-        path: '/work',
-        component: Work,
     },
     {
         name: 'contact.js',
@@ -335,8 +466,8 @@ function Sections() {
                     <Route path={link.path} component={link.component} />
                 )}
             </For>
-            <Route path={readme.path} component={Work} />
-            <Route path="*" element={<Navigate href={readme.path} />} />
+            <Route path={readmeLink.path} component={Work} />
+            <Route path="*" element={<Navigate href={readmeLink.path} />} />
         </Routes>
     )
 }
@@ -348,24 +479,32 @@ function App() {
                 <div class="flex grow pl-2">
                     <div class="grow">
                         <div class="m-auto flex h-screen w-[700px] flex-col pt-4">
-                            <div class="flex justify-between items-center">
+                            <div class="flex items-center justify-between">
                                 <div>
                                     <p class="text-2xl font-medium">
                                         Guillem Garcia Sans
                                     </p>
-                                    <p>Mid-level 26 y/o fullstack web developer</p>
+                                    <p>
+                                        Mid-level 26 y/o fullstack web developer
+                                    </p>
                                 </div>
 
                                 <div class="flex gap-2">
-                                    <a href="https://github.com/not-rusty" target="_blank">
+                                    <a
+                                        href="https://github.com/not-rusty"
+                                        target="_blank"
+                                    >
                                         <Icons.Github></Icons.Github>
                                     </a>
-                                    <a href="https://www.linkedin.com/in/guillem-garcia/" target="_blank">
+                                    <a
+                                        href="https://www.linkedin.com/in/guillem-garcia/"
+                                        target="_blank"
+                                    >
                                         <Icons.Linkedin></Icons.Linkedin>
                                     </a>
                                 </div>
-
                             </div>
+                            <p>Developing software since 2017</p>
                             <div class="mt-4 flex justify-evenly gap-4">
                                 <For each={links}>
                                     {(link) => (
