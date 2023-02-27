@@ -86,45 +86,6 @@ function Work() {
     )
 }
 
-// const finalState = {
-//     fullTitle: 'Guillem Garcia Sans',
-//     description: `I'm a fullstack web developer with a passion for travel and exploring new technologies. Whether I'm developing with Go during the day, or programming with SolidJS at night, I'm always looking for ways to grow and learn. When I'm not coding, I'm usually sipping some mate, planning my next adventure and daydreaming about the possibilities of the future!`,
-// }
-
-// type AppState = Partial<typeof finalState>
-
-// const [appState, setAppState] = createStore<AppState>({})
-
-// This will be useful for the typing effect
-// function sleep(ms: number): Promise<void> {
-//     return new Promise((resolve) => {
-//         setTimeout(resolve, ms)
-//     })
-// }
-
-window.onload = async function () {
-    // for (const char of finalState.fullTitle) {
-    // }
-    // for (let i = 0; i < loadingMsg.length; i++) {
-    //     const char = loadingMsg[i]
-    //     await sleep(30)
-    //     setStore((store) => {
-    //         store.title += char
-    //     })
-    // }
-    // await sleep(1000)
-    // setStore((store) => {
-    //     store.title = ''
-    // })
-    // for (let i = 0; i < fullTitle.length; i++) {
-    //     const char = fullTitle[i]
-    //     await sleep(40)
-    //     setStore((store) => {
-    //         store.title += char
-    //     })
-    // }
-}
-
 type ButtonProps = {
     href?: string
     onClick?: () => void
