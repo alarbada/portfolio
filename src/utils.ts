@@ -11,4 +11,3 @@ export function createStore<T extends object>(value: T) {
 
     return [getter, immerLike] as const
 }
-

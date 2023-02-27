@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body, #root {
+html,
+body,
+#root {
     height: 100%;
     break-after: all;
     color-scheme: dark;
@@ -10,7 +12,9 @@ html, body, #root {
 }
 
 @media print {
-    html, body, #root {
+    html,
+    body,
+    #root {
         color-scheme: none;
     }
 }
