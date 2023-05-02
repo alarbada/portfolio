@@ -506,7 +506,7 @@ export default function App() {
                             )}
                         </For>
                         <div class="mx-4"></div>
-                        <a href="https://github.com/not-rusty" target="_blank">
+                        <a href="https://github.com/alarbada" target="_blank">
                             <Icons.Github />
                         </a>
                         <a
